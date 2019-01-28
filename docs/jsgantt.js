@@ -18,6 +18,7 @@ var xml_1 = require("./xml");
 // pDiv: (required) this is a div object created in HTML
 // pFormat: (required) - used to indicate whether chart should be drawn in "hour", "day", "week", "month", or "quarter" format
 exports.GanttChart = function (pDiv, pFormat) {
+    this.rotatedMode = true;
     this.vDiv = pDiv;
     this.vFormat = pFormat;
     this.vDivId = null;
@@ -27,14 +28,14 @@ exports.GanttChart = function (pDiv, pFormat) {
     this.vUseToolTip = 1;
     this.vUseSort = 1;
     this.vUseSingleCell = 25000;
-    this.vShowRes = 1;
-    this.vShowDur = 1;
-    this.vShowComp = 1;
-    this.vShowStartDate = 1;
-    this.vShowEndDate = 1;
-    this.vShowPlanStartDate = 0;
-    this.vShowPlanEndDate = 0;
-    this.vShowCost = 0;
+    this.vShowRes = this.rotatedMode ? 0 : 1;
+    this.vShowDur = this.rotatedMode ? 0 : 1;
+    this.vShowComp = this.rotatedMode ? 0 : 1;
+    this.vShowStartDate = this.rotatedMode ? 0 : 1;
+    this.vShowEndDate = this.rotatedMode ? 0 : 1;
+    this.vShowPlanStartDate = this.rotatedMode ? 0 : 1;
+    this.vShowPlanEndDate = this.rotatedMode ? 0 : 1;
+    this.vShowCost = this.rotatedMode ? 0 : 1;
     this.vShowPlanEndDate = 0;
     this.vShowEndWeekDate = 1;
     this.vShowTaskInfoRes = 1;
@@ -76,7 +77,7 @@ exports.GanttChart = function (pDiv, pFormat) {
         planstartdate: null,
         planenddate: null,
         cost: null,
-    };
+    };    
     this.vResources = null;
     this.vAdditionalHeaders = {};
     this.vEditable = false;
@@ -109,7 +110,8 @@ exports.GanttChart = function (pDiv, pFormat) {
     this.vWeekColWidth = 36;
     this.vMonthColWidth = 36;
     this.vQuarterColWidth = 18;
-    this.vRowHeight = 20;
+    //TODO LEANCRM-1369
+    this.vRowHeight = this.rotatedMode ? 44 : 22;
     this.vTodayPx = -1;
     this.vLangs = lang;
     this.vLang = navigator.language && navigator.language in lang ? navigator.language : 'en';
@@ -360,10 +362,15 @@ exports.GanttChart = function (pDiv, pFormat) {
             var vTmpDiv = this.newNode(vLeftHeader, 'div', this.vDivId + 'glisthead', 'glistlbl gcontainercol');
             var vTmpTab = this.newNode(vTmpDiv, 'table', null, 'gtasktableh');
             var vTmpTBody = this.newNode(vTmpTab, 'tbody');
-            var vTmpRow = this.newNode(vTmpTBody, 'tr');
-            this.newNode(vTmpRow, 'td', null, 'gtasklist', '\u00A0');
-            var vTmpCell = this.newNode(vTmpRow, 'td', null, 'gspanning gtaskname');
-            vTmpCell.appendChild(this.drawSelector('top'));
+            var vTmpRow;
+            var vTmpCell;
+            //TODO LEANCRM-1369
+            if (!this.rotatedMode) {
+                vTmpRow = this.newNode(vTmpTBody, 'tr');
+                this.newNode(vTmpRow, 'td', null, 'gtasklist', '\u00A0');
+                vTmpCell = this.newNode(vTmpRow, 'td', null, 'gspanning gtaskname');
+                vTmpCell.appendChild(this.drawSelector('top'));
+            }
             if (this.vShowRes == 1)
                 this.newNode(vTmpRow, 'td', null, 'gspanning gresource', '\u00A0');
             if (this.vShowDur == 1)
@@ -387,7 +394,7 @@ exports.GanttChart = function (pDiv, pFormat) {
                     this.newNode(vTmpRow, 'td', null, "gspanning gadditional " + css, '\u00A0');
                 }
             }
-            vTmpRow = this.newNode(vTmpTBody, 'tr');
+            vTmpRow = this.newNode(vTmpTBody, 'tr', null, this.rotatedMode ? 'fillerHeader' : '');
             this.newNode(vTmpRow, 'td', null, 'gtasklist', '\u00A0');
             this.newNode(vTmpRow, 'td', null, 'gtaskname', '\u00A0');
             if (this.vShowRes == 1)
@@ -556,10 +563,13 @@ exports.GanttChart = function (pDiv, pFormat) {
                 _loop_1(i_1);
             }
             // DRAW the date format selector at bottom left.
-            vTmpRow = this.newNode(vTmpTBody, 'tr');
-            this.newNode(vTmpRow, 'td', null, 'gtasklist', '\u00A0');
-            vTmpCell = this.newNode(vTmpRow, 'td', null, 'gspanning gtaskname');
-            vTmpCell.appendChild(this.drawSelector('bottom'));
+            //TODO LEANCRM-1369
+            if (!this.rotatedMode) {
+                vTmpRow = this.newNode(vTmpTBody, 'tr');
+                this.newNode(vTmpRow, 'td', null, 'gtasklist', '\u00A0');
+                vTmpCell = this.newNode(vTmpRow, 'td', null, 'gspanning gtaskname');
+                vTmpCell.appendChild(this.drawSelector('bottom'));
+            }
             if (this.vShowRes == 1)
                 this.newNode(vTmpRow, 'td', null, 'gspanning gresource', '\u00A0');
             if (this.vShowDur == 1)
@@ -913,20 +923,36 @@ exports.GanttChart = function (pDiv, pFormat) {
             // MAIN VIEW: Appending all generated components to main view
             while (this.vDiv.hasChildNodes())
                 this.vDiv.removeChild(this.vDiv.firstChild);
-            vTmpDiv = this.newNode(this.vDiv, 'div', null, 'gchartcontainer');
-            var leftvTmpDiv = this.newNode(vTmpDiv, 'div', null, 'gmain gmainleft');
+
+            //TODO LEANCRM-1369
+            if (this.rotatedMode) {
+                vTmpRow = this.newNode(this.vDiv, 'tr');
+                this.newNode(vTmpRow, 'td', null, 'gtasklist', '\u00A0');
+                vTmpCell = this.newNode(vTmpRow, 'td', null, 'gspanning gtaskname');
+                vTmpCell.appendChild(this.drawSelector('top'));
+            }
+
+            vTmpDiv = this.newNode(this.vDiv, 'div', null, this.rotatedMode ? 'gchartcontainer-rotated' : 'gchartcontainer');
+
+            //TODO LEANCRM-1369
+            // var leftRightTmpDivWrapper = this.newNode(vTmpDiv, 'div', null, 'gmain-wrapper');
+            // vTmpDiv.appendChild(leftRightTmpDivWrapper);
+            var leftRightTmpDivWrapper = vTmpDiv;
+
+            var leftvTmpDiv = this.newNode(leftRightTmpDivWrapper, 'div', null, 'gmain gmainleft');
             leftvTmpDiv.appendChild(vLeftHeader);
             // leftvTmpDiv.appendChild(vLeftTable);
-            var rightvTmpDiv = this.newNode(vTmpDiv, 'div', null, 'gmain gmainright');
+            var rightvTmpDiv = this.newNode(leftRightTmpDivWrapper, 'div', null, 'gmain gmainright');
             rightvTmpDiv.appendChild(vRightHeader);
             rightvTmpDiv.appendChild(vRightTable);
-            vTmpDiv.appendChild(leftvTmpDiv);
-            vTmpDiv.appendChild(rightvTmpDiv);
+            leftRightTmpDivWrapper.appendChild(leftvTmpDiv);
+            leftRightTmpDivWrapper.appendChild(rightvTmpDiv);
             //vTmpDiv.appendChild(vLeftHeader);
             // vTmpDiv.appendChild(vRightHeader);
             // vTmpDiv.appendChild(vLeftTable);
             // vTmpDiv.appendChild(vRightTable);
-            this.newNode(vTmpDiv, 'div', null, 'ggridfooter');
+            this.newNode(leftRightTmpDivWrapper, 'div', null, 'ggridfooter');
+
             vTmpDiv2 = this.newNode(this.getChartBody(), 'div', this.vDivId + 'Lines', 'glinediv');
             vTmpDiv2.style.visibility = 'hidden';
             this.setLines(vTmpDiv2);

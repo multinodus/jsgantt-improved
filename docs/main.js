@@ -18,7 +18,8 @@ $(document).ready(function() {
     });
 
   // Demo buttons
-    $("#embedded-Gantt").hide(0);
+    //TODO LEANCRM-1369
+    // $("#embedded-Gantt").hide(0);
     $("#external-Gantt").hide(0);
 
     $(".btn-demo").click(function() {
