@@ -286,12 +286,12 @@ span.gfoldercollapse {
 }
 
 .gchartcontainer-rotated .ggroupblack,
-.gtaskblue,
-.gtaskred,
-.gtaskgreen,
-.gtaskyellow,
-.gtaskpurple,
-.gtaskpink {
+.gchartcontainer-rotated .gtaskblue,
+.gchartcontainer-rotated .gtaskred,
+.gchartcontainer-rotated .gtaskgreen,
+.gchartcontainer-rotated .gtaskyellow,
+.gchartcontainer-rotated .gtaskpurple,
+.gchartcontainer-rotated .gtaskpink {
   height: 30px;
   margin-top: 1px;
 }
@@ -415,11 +415,11 @@ span.gfoldercollapse {
 }
 
 .gchartcontainer-rotated .gtaskbluecomplete,
-.gtaskredcomplete,
-.gtaskgreencomplete,
-.gtaskyellowcomplete,
-.gtaskpurplecomplete,
-.gtaskpinkcomplete {
+.gchartcontainer-rotated .gtaskredcomplete,
+.gchartcontainer-rotated .gtaskgreencomplete,
+.gchartcontainer-rotated .gtaskyellowcomplete,
+.gchartcontainer-rotated .gtaskpurplecomplete,
+.gchartcontainer-rotated .gtaskpinkcomplete {
   height: 20px;
   margin-top: 5px;
 }
@@ -833,8 +833,8 @@ td.gspanning div {
 }
 
 .gchartcontainer-rotated .gtasktableh tr.gname,
-.gcharttable tr,
-.gtasktable tr {
+.gchartcontainer-rotated .gcharttable tr,
+.gchartcontainer-rotated .gtasktable tr {
   height: 44px !important;
 }
 

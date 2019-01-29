@@ -114,14 +114,16 @@ exports.GanttChart = function (pDiv, pFormat) {
     this.vRowHeight = this.rotatedMode ? 44 : 22;
     this.vTodayPx = -1;
     this.vLangs = lang;
-    this.vLang = navigator.language && navigator.language in lang ? navigator.language : 'en';
+    //TODO LEANCRM-1369
+    this.vLang = navigator.language && navigator.language in lang ? navigator.language : 'ru';
     this.vChartBody = null;
     this.vChartHead = null;
     this.vListBody = null;
     this.vChartTable = null;
     this.vLines = null;
     this.vTimer = 20;
-    this.vTooltipDelay = 1500;
+    //TODO LEANCRM-1369
+    this.vTooltipDelay = 500;
     this.includeGetSet = options_1.includeGetSet.bind(this);
     this.includeGetSet();
     this.mouseOver = events_1.mouseOver;
@@ -785,7 +787,7 @@ exports.GanttChart = function (pDiv, pFormat) {
                     events_1.addThisRowListeners(this, this.vTaskList[i].getListChildRow(), vTmpRow);
                     vTmpCell = this.newNode(vTmpRow, 'td', null, 'gtaskcell');
                     vTmpDiv = this.newNode(vTmpCell, 'div', null, 'gtaskcelldiv', '\u00A0\u00A0');
-                    vTmpDiv = this.newNode(vTmpDiv, 'div', this.vDivId + 'bardiv_' + vID, 'gtaskbarcontainer', null, 12, vTaskLeftPx + vTaskRightPx - 6);
+                    vTmpDiv = this.newNode(vTmpDiv, 'div', this.vDivId + 'bardiv_' + vID, 'gtaskbarcontainer ' + this.vTaskList[i].getLink(), null, 12, vTaskLeftPx + vTaskRightPx - 6);
                     this.vTaskList[i].setBarDiv(vTmpDiv);
                     vTmpDiv2 = this.newNode(vTmpDiv, 'div', this.vDivId + 'taskbar_' + vID, this.vTaskList[i].getClass(), null, 12);
                     this.vTaskList[i].setTaskDiv(vTmpDiv2);
@@ -821,7 +823,7 @@ exports.GanttChart = function (pDiv, pFormat) {
                         vTmpDiv = this.newNode(vTmpCell, 'div', null, 'gtaskcelldiv', '\u00A0\u00A0');
                         this.vTaskList[i].setCellDiv(vTmpDiv);
                         if (this.vTaskList[i].getGroup() == 1) {
-                            vTmpDiv = this.newNode(vTmpDiv, 'div', this.vDivId + 'bardiv_' + vID, 'gtaskbarcontainer', null, vTaskWidth, vTaskLeftPx);
+                            vTmpDiv = this.newNode(vTmpDiv, 'div', this.vDivId + 'bardiv_' + vID, 'gtaskbarcontainer ' + this.vTaskList[i].getLink(), null, vTaskWidth, vTaskLeftPx);
                             this.vTaskList[i].setBarDiv(vTmpDiv);
                             vTmpDiv2 = this.newNode(vTmpDiv, 'div', this.vDivId + 'taskbar_' + vID, this.vTaskList[i].getClass(), null, vTaskWidth);
                             this.vTaskList[i].setTaskDiv(vTmpDiv2);
@@ -860,13 +862,13 @@ exports.GanttChart = function (pDiv, pFormat) {
                             vTmpDivCell = vTmpDiv = this.newNode(vTmpCell, 'div', null, 'gtaskcelldiv', '\u00A0\u00A0');
                         }
                         // draw the lines for dependecies
-                        vTmpDiv = this.newNode(vTmpDiv, 'div', this.vDivId + 'bardiv_' + vID, 'gtaskbarcontainer', null, vTaskWidth, vTaskLeftPx);
+                        vTmpDiv = this.newNode(vTmpDiv, 'div', this.vDivId + 'bardiv_' + vID, 'gtaskbarcontainer ' + this.vTaskList[i].getLink(), null, vTaskWidth, vTaskLeftPx);
                         this.vTaskList[i].setBarDiv(vTmpDiv);
                         vTmpDiv2 = this.newNode(vTmpDiv, 'div', this.vDivId + 'taskbar_' + vID, this.vTaskList[i].getClass(), null, vTaskWidth);
                         this.vTaskList[i].setTaskDiv(vTmpDiv2);
                         // PLANNED
                         if (vTaskPlanLeftPx && vTaskPlanLeftPx != vTaskLeftPx) { // vTaskPlanRightPx vTaskPlanLeftPx
-                            var vTmpPlanDiv = this.newNode(vTmpDivCell, 'div', this.vDivId + 'bardiv_' + vID, 'gtaskbarcontainer gplan', null, vTaskPlanRightPx, vTaskPlanLeftPx);
+                            var vTmpPlanDiv = this.newNode(vTmpDivCell, 'div', this.vDivId + 'bardiv_' + vID, 'gtaskbarcontainer ' + this.vTaskList[i].getLink() + ' gplan', null, vTaskPlanRightPx, vTaskPlanLeftPx);
                             var vTmpDiv3 = this.newNode(vTmpPlanDiv, 'div', this.vDivId + 'taskbar_' + vID, this.vTaskList[i].getClass() + ' gplan', null, vTaskPlanRightPx);
                         }
                         // and opaque completion div
@@ -1296,6 +1298,8 @@ exports.addListenerInputCell = function (vTmpCell, vEventsChange, callback, task
         }, vTmpCell.children[0].children[0]);
     }
 };
+
+//TODO LEANCRM-1369
 exports.addListenerDependencies = function () {
     var elements = document.querySelectorAll('.gtaskbarcontainer');
     for (var i = 0; i < elements.length; i++) {
@@ -1305,6 +1309,9 @@ exports.addListenerDependencies = function () {
         });
         taskDiv.addEventListener('mouseout', function (e) {
             toggleDependencies(e);
+        });
+        taskDiv.addEventListener('click', function(e) {
+            highlightDependencies(e);
         });
     }
 };
@@ -1318,9 +1325,44 @@ var toggleDependencies = function (e) {
     if (ids.length > 1) {
         document.querySelectorAll(".gDepId" + ids[1]).forEach(function (c) {
             c.style.borderStyle = style;
-        });
+        });        
     }
 };
+//TODO LEANCRM-1369
+var highlightDependencies = function (e) {    
+    var target = e.currentTarget;
+
+    var classes = target.className.split(' ');
+
+    var scenarioName;
+
+    for (var i = 0; i < classes.length; i++) {
+        var c = classes[i];
+
+        if (c.indexOf('scenario') >= 0) {
+            scenarioName = c;
+        }
+    }
+
+    if (scenarioName) {
+        setAllTasksOpacity(e, '0.2');
+
+        var tasks = document.querySelectorAll('.'.concat(scenarioName));
+        for (var i = 0; i < tasks.length; i++) {
+            var taskDiv = tasks[i];
+            taskDiv.style.opacity = '1.0';
+        }
+    }
+}
+var setAllTasksOpacity = function (e, opacityLvl) {
+    //TODO LEANCRM-1369
+    var tasks = document.querySelectorAll('.gtaskbarcontainer');
+    for (var i = 0; i < tasks.length; i++) {
+        var taskDiv = tasks[i];
+        taskDiv.style.opacity = opacityLvl;
+    }
+}
+
 // "pID": 122
 var vColumnsNames = {
     taskname: 'pName',
