@@ -842,6 +842,14 @@ td.gspanning div {
   height: 39px !important;
 }
 
+.task-border-red {
+  border-color: rgb(196, 58, 58);
+}
+
+.task-background-green {
+  background-color: rgb(80, 193, 58);
+}
+
 /* Printer friendly styles - we could use these all the time but they are not as pretty! */
 
 /* note that "@media print" is not supported in IE6 or 7.  Fully patched IE8 should be OK */

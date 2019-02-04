@@ -122,19 +122,19 @@
   <div class="container-fluid section" id="demo">
     <h1>Demo</h1>
     <div class="btn-group" data-toggle="buttons">
-        <label class="btn btn-primary btn-demo">
+        <!-- <label class="btn btn-primary btn-demo">
             <input type="checkbox" autocomplete="off" value="true"><i class="fa fa-code"></i> Switch mode
-          </label>
-      <!-- <label class="btn btn-primary btn-demo">
+          </label> -->
+      <label class="btn btn-primary btn-demo">
         <input type="checkbox" autocomplete="off" value="true"><i class="fa fa-code"></i> Embedded Code
       </label>
       <label class="btn btn-primary btn-demo">
         <input type="checkbox" autocomplete="off"><i class="fa fa-file-code-o"></i> External XML File
-      </label> -->
+      </label>
     </div>
     <div id="embedded-Gantt">
       <script type="text/javascript">
-        var g = new JSGantt.GanttChart(document.getElementById('embedded-Gantt'), 'week');
+        var g = new JSGantt.GanttChart(document.getElementById('embedded-Gantt'), 'week', true);
         if (g.getDivId() != null) {
           g.setCaptionType('Complete');  // Set to Show Caption (None,Caption,Resource,Duration,Complete)
           g.setQuarterColWidth(36);
@@ -146,7 +146,7 @@
           g.setUseSingleCell(10000); // Set the threshold at which we will only use one cell per table row (0 disables).  Helps with rendering performance for large charts.
           g.setFormatArr('Day', 'Week', 'Month', 'Quarter'); // Even with setUseSingleCell using Hour format on such a large chart can cause issues in some browsers
           // Parameters                     (pID, pName,                  pStart,       pEnd,        pStyle,         pLink (unused)  pMile, pRes,       pComp, pGroup, pParent, pOpen, pDepend, pCaption, pNotes, pGantt)
-          g.AddTaskItem(new JSGantt.TaskItem(1, 'Define Chart API', '', '', 'ggroupblack', 'scenario1', 0, 'Brian', 0, 1, 0, 1, '', '', 'Some Notes text', g));
+          g.AddTaskItem(new JSGantt.TaskItem(1, 'Define Chart API', '', '', 'ggroupblack', 'scenario1', 0, 'Brian', 0, 1, 0, 1, '', '', 'Some Notes text', g, undefined, undefined, undefined, undefined, 'task-border-red', 'task-background-green'));
           g.AddTaskItem(new JSGantt.TaskItem(11, 'Chart Object', '2017-02-20', '2017-02-20', 'gmilestone', 'scenario1', 1, 'Shlomy', 100, 0, 1, 1, '', '', '', g));
           g.AddTaskItem(new JSGantt.TaskItem(12, 'Task Objects', '', '', 'ggroupblack', 'scenario1', 0, 'Shlomy', 40, 1, 1, 1, '', '', '', g));
           g.AddTaskItem(new JSGantt.TaskItem(121, 'Constructor Proc #1234 of February 2017', '2017-02-21', '2017-03-09', 'gtaskred', 'scenario1', 0, 'Brian T.', 60, 0, 12, 1, '', '', '', g));
@@ -175,7 +175,7 @@
     </div>
     <div id="external-Gantt">
       <script type="text/javascript">
-        var g = new JSGantt.GanttChart(document.getElementById('external-Gantt'), 'day');
+        var g = new JSGantt.GanttChart(document.getElementById('external-Gantt'), 'day', false);
 
         if (g.getDivId() != null) {
           g.setCaptionType('Resource');  // Set to Show Caption (None,Caption,Resource,Duration,Complete)

@@ -17,8 +17,8 @@ var xml_1 = require("./xml");
 // function that loads the main gantt chart properties and functions
 // pDiv: (required) this is a div object created in HTML
 // pFormat: (required) - used to indicate whether chart should be drawn in "hour", "day", "week", "month", or "quarter" format
-exports.GanttChart = function (pDiv, pFormat) {
-    this.rotatedMode = true;
+exports.GanttChart = function (pDiv, pFormat, pRotatedMode) {
+    this.rotatedMode = pRotatedMode;
     this.vDiv = pDiv;
     this.vFormat = pFormat;
     this.vDivId = null;
@@ -2476,7 +2476,7 @@ exports.TaskItemObject = function (object) {
     });
     return new exports.TaskItem(object.pID, object.pName, object.pStart, object.pEnd, object.pClass, object.pLink, object.pMile, object.pRes, object.pComp, object.pGroup, object.pParent, object.pOpen, object.pDepend, object.pCaption, object.pNotes, object.pGantt, object.pCost, object.pPlanStart, object.pPlanEnd, object);
 };
-exports.TaskItem = function (pID, pName, pStart, pEnd, pClass, pLink, pMile, pRes, pComp, pGroup, pParent, pOpen, pDepend, pCaption, pNotes, pGantt, pCost, pPlanStart, pPlanEnd, pDataObject) {
+exports.TaskItem = function (pID, pName, pStart, pEnd, pClass, pLink, pMile, pRes, pComp, pGroup, pParent, pOpen, pDepend, pCaption, pNotes, pGantt, pCost, pPlanStart, pPlanEnd, pDataObject, pBorderColor, pBackgroundColor) {
     if (pCost === void 0) { pCost = null; }
     if (pPlanStart === void 0) { pPlanStart = null; }
     if (pPlanEnd === void 0) { pPlanEnd = null; }
@@ -2525,6 +2525,8 @@ exports.TaskItem = function (pID, pName, pStart, pEnd, pClass, pLink, pMile, pRe
     var vListChildRow = null;
     var vChildRow = null;
     var vGroupSpan = null;
+    var vBorderColor = null;
+    var vBackgroundColor = null;
     vNotes = document.createElement('span');
     vNotes.className = 'gTaskNotes';
     if (pNotes != null) {
@@ -2577,6 +2579,13 @@ exports.TaskItem = function (pID, pName, pStart, pEnd, pClass, pLink, pMile, pRe
             }
         }
     }
+
+    vBorderColor = document.createTextNode(pBorderColor).data;
+    vBackgroundColor = document.createTextNode(pBackgroundColor).data;
+
+    vBorderColor = vBorderColor != null ? vBorderColor.concat(' ') : '';
+    vBackgroundColor = vBackgroundColor != null ? vBackgroundColor.concat(' ') : '';
+
     this.getID = function () { return vID; };
     this.getOriginalID = function () { return _id; };
     this.getGantt = function () { return vGantt; };
@@ -2602,7 +2611,7 @@ exports.TaskItem = function (pID, pName, pStart, pEnd, pClass, pLink, pMile, pRe
     this.getCost = function () { return vCost; };
     this.getGroupMinStart = function () { return vGroupMinStart; };
     this.getGroupMinEnd = function () { return vGroupMinEnd; };
-    this.getClass = function () { return vClass; };
+    this.getClass = function () { return vBorderColor.concat(vBackgroundColor).concat(vClass); };
     this.getLink = function () { return vLink; };
     this.getMile = function () { return vMile; };
     this.getDepend = function () {
@@ -2704,6 +2713,8 @@ exports.TaskItem = function (pID, pName, pStart, pEnd, pClass, pLink, pMile, pRe
     this.getChildRow = function () { return vChildRow; };
     this.getListChildRow = function () { return vListChildRow; };
     this.getGroupSpan = function () { return vGroupSpan; };
+    this.getBorderColor = function () { return vBorderColor; };
+    this.getBackgroundColor = function () { return vBackgroundColor; };
     this.setName = function (pName) { vName = pName; };
     this.setCost = function (pCost) { vCost = pCost; };
     this.setResource = function (pRes) { vRes = pRes; };
