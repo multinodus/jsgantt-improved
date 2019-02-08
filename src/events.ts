@@ -141,7 +141,9 @@ export const addFormatListeners = function (pGanttChart, pFormat, pObj) {
 
 export const addScrollListeners = function (pGanttChart) {
   addListener('resize', function () { pGanttChart.getChartHead().scrollLeft = pGanttChart.getChartBody().scrollLeft; }, window);
-  addListener('resize', function () { pGanttChart.getListBody().scrollTop = pGanttChart.getChartBody().scrollTop; }, window);
+
+  //TODO LEANCRM-1369
+  //  addListener('resize', function () { pGanttChart.getListBody().scrollTop = pGanttChart.getChartBody().scrollTop; }, window);
 };
 
 export const addListenerClickCell = function (vTmpCell, vEvents, task, column) {
@@ -183,6 +185,10 @@ export const addListenerDependencies = function () {
     taskDiv.addEventListener('mouseout', e => {
       toggleDependencies(e);
     });
+    //TODO LEANCRM-1369
+    taskDiv.addEventListener('click', function(e) {
+      highlightDependencies(e);
+    });
   }
 }
 
@@ -194,9 +200,46 @@ const toggleDependencies = function (e) {
     style = '';
   }
   if (ids.length > 1) {
-    document.querySelectorAll(`.gDepId${ids[1]}`).forEach((c: any) => {
-      c.style.borderStyle = style;
-    });
+    //TODO LEANCRM-1369
+    // document.querySelectorAll(`.gDepId${ids[1]}`).forEach((c: any) => {
+    // c.style.borderStyle = style;
+    // });
+  }
+}
+
+//TODO LEANCRM-1369
+const highlightDependencies = function (e) {
+  let target = e.currentTarget;
+
+  let classes = target.className.split(' ');
+
+  let scenarioName;
+
+  for (i = 0; i < classes.length; i++) {
+    let c = classes[i];
+
+    if (c.indexOf('scenario') >= 0) {
+      scenarioName = c;
+    }
+  }
+
+  if (scenarioName) {
+    setAllTasksOpacity(e, '0.2');
+
+    let tasks = document.querySelectorAll('.'.concat(scenarioName));
+    for (let i = 0; i < tasks.length; i++) {
+      let taskDiv = tasks[i];
+      taskDiv.style.opacity = '1.0';
+    }
+  }
+}
+
+const setAllTasksOpacity = function (e, opacityLvl) {
+  //TODO LEANCRM-1369
+  let tasks = document.querySelectorAll('.gtaskbarcontainer');
+  for (let i = 0; i < tasks.length; i++) {
+    let taskDiv = tasks[i];
+    taskDiv.style.opacity = opacityLvl;
   }
 }
 

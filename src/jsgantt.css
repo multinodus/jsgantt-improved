@@ -836,3 +836,89 @@ td.gspanning div {
   thead { display:table-header-group }
   tfoot { display:table-footer-group }
 }
+
+.gchartcontainer-rotated .ggroupblack,
+.gchartcontainer-rotated .gtaskblue,
+.gchartcontainer-rotated .gtaskred,
+.gchartcontainer-rotated .gtaskgreen,
+.gchartcontainer-rotated .gtaskyellow,
+.gchartcontainer-rotated .gtaskpurple,
+.gchartcontainer-rotated .gtaskpink {
+  height: 30px;
+  margin-top: 1px;
+}
+
+.gchartcontainer-rotated .ggroupblackcomplete {
+  height: 20px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.gchartcontainer-rotated .gtaskbluecomplete,
+.gchartcontainer-rotated .gtaskredcomplete,
+.gchartcontainer-rotated .gtaskgreencomplete,
+.gchartcontainer-rotated .gtaskyellowcomplete,
+.gchartcontainer-rotated .gtaskpurplecomplete,
+.gchartcontainer-rotated .gtaskpinkcomplete {
+  height: 20px;
+  margin-top: 5px;
+}
+
+.gchartcontainer-rotated {
+  /* padding-left: 532px; LC width */
+  line-height: 1;
+  /* Overrides inherited CSS (e.g. from Bootstrap) */
+
+  transform: rotate(-90deg);
+  width: 700px;
+  height: 700px;
+  overflow-x: scroll;
+  overflow-y: scroll;
+  /* direction: rtl; */
+}
+
+.gchartcontainer-rotated .gcontainercol {
+  position: relative;
+}
+
+/* .gmain-wrapper {
+  direction: ltr;
+  width: auto;
+  height: auto;
+} */
+
+.gchartcontainer-rotated .gmain{
+  display: inline-block;
+  height: 100%;
+}
+
+.gchartcontainer-rotated .gmainright {
+  width: calc(100% - 170px);
+  top: 0;
+  overflow-x: unset;
+  overflow-y: unset;
+}
+
+.gchartcontainer-rotated .gmainleft {
+  width: 170px;
+  overflow-x: unset;
+  overflow-y: unset;
+}
+
+.gchartcontainer-rotated .gtasktableh tr.gname,
+.gchartcontainer-rotated .gcharttable tr,
+.gchartcontainer-rotated .gtasktable tr {
+  height: 44px !important;
+}
+
+.gchartcontainer-rotated .gtasktableh tr.fillerHeader {
+  height: 39px !important;
+}
+
+.task-border-red {
+  border-color: rgb(196, 58, 58);
+}
+
+.task-background-green {
+  background-color: rgb(80, 193, 58);
+}

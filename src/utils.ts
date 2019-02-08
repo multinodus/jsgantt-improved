@@ -437,8 +437,9 @@ export const hashString = function (key) {
   return hash >>> 0;
 }
 
+//TODO LEANCRM-1369
 export const hashKey = function (key) {
-  return this.hashString(key) % 10000;
+  return hashString(key) % 10000;
 }
 
 export const criticalPath = function (tasks) {

@@ -16,7 +16,8 @@ import { getXMLProject, getXMLTask } from './xml';
 // function that loads the main gantt chart properties and functions
 // pDiv: (required) this is a div object created in HTML
 // pFormat: (required) - used to indicate whether chart should be drawn in "hour", "day", "week", "month", or "quarter" format
-export const GanttChart = function (pDiv, pFormat) {
+export const GanttChart = function (pDiv, pFormat, pRotatedMode) {
+  this.rotatedMode = pRotatedMode;
   this.vDiv = pDiv;
   this.vFormat = pFormat;
   this.vDivId = null;
@@ -26,14 +27,14 @@ export const GanttChart = function (pDiv, pFormat) {
   this.vUseToolTip = 1;
   this.vUseSort = 1;
   this.vUseSingleCell = 25000;
-  this.vShowRes = 1;
-  this.vShowDur = 1;
-  this.vShowComp = 1;
-  this.vShowStartDate = 1;
-  this.vShowEndDate = 1;
-  this.vShowPlanStartDate = 0;
-  this.vShowPlanEndDate = 0;
-  this.vShowCost = 0;
+  this.vShowRes = this.rotatedMode ? 0 : 1;
+  this.vShowDur = this.rotatedMode ? 0 : 1;
+  this.vShowComp = this.rotatedMode ? 0 : 1;
+  this.vShowStartDate = this.rotatedMode ? 0 : 1;
+  this.vShowEndDate = this.rotatedMode ? 0 : 1;
+  this.vShowPlanStartDate = this.rotatedMode ? 0 : 0;
+  this.vShowPlanEndDate = this.rotatedMode ? 0 : 0;
+  this.vShowCost = this.rotatedMode ? 0 : 0;
   this.vShowPlanEndDate = 0;
   this.vShowEndWeekDate = 1;
   this.vShowTaskInfoRes = 1;
@@ -108,17 +109,20 @@ export const GanttChart = function (pDiv, pFormat) {
   this.vWeekColWidth = 36;
   this.vMonthColWidth = 36;
   this.vQuarterColWidth = 18;
-  this.vRowHeight = 20;
+  //TODO LEANCRM-1369
+  this.vRowHeight = this.rotatedMode ? 44 : 20;
   this.vTodayPx = -1;
   this.vLangs = lang;
-  this.vLang = navigator.language && navigator.language in lang ? navigator.language : 'en';
+  //TODO LEANCRM-1369
+  this.vLang = navigator.language && navigator.language in lang ? navigator.language : 'ru';
   this.vChartBody = null;
   this.vChartHead = null;
   this.vListBody = null;
   this.vChartTable = null;
   this.vLines = null;
   this.vTimer = 20;
-  this.vTooltipDelay = 1500;
+  //TODO LEANCRM-1369
+  this.vTooltipDelay = 500;
   this.includeGetSet = includeGetSet.bind(this);
   this.includeGetSet();
 
@@ -365,10 +369,14 @@ export const GanttChart = function (pDiv, pFormat) {
       let vTmpDiv = this.newNode(vLeftHeader, 'div', this.vDivId + 'glisthead', 'glistlbl gcontainercol');
       let vTmpTab = this.newNode(vTmpDiv, 'table', null, 'gtasktableh');
       let vTmpTBody = this.newNode(vTmpTab, 'tbody');
-      let vTmpRow = this.newNode(vTmpTBody, 'tr');
-      this.newNode(vTmpRow, 'td', null, 'gtasklist', '\u00A0');
-      let vTmpCell = this.newNode(vTmpRow, 'td', null, 'gspanning gtaskname');
-      vTmpCell.appendChild(this.drawSelector('top'));
+      let vTmpCell;
+      //TODO LEANCRM-1369
+      if (!this.rotatedMode) {
+        vTmpRow = this.newNode(vTmpTBody, 'tr');
+        this.newNode(vTmpRow, 'td', null, 'gtasklist', '\u00A0');
+        vTmpCell = this.newNode(vTmpRow, 'td', null, 'gspanning gtaskname');
+        vTmpCell.appendChild(this.drawSelector('top'));
+      }
       if (this.vShowRes == 1) this.newNode(vTmpRow, 'td', null, 'gspanning gresource', '\u00A0');
       if (this.vShowDur == 1) this.newNode(vTmpRow, 'td', null, 'gspanning gduration', '\u00A0');
       if (this.vShowComp == 1) this.newNode(vTmpRow, 'td', null, 'gspanning gpccomplete', '\u00A0');
@@ -385,7 +393,7 @@ export const GanttChart = function (pDiv, pFormat) {
         }
       }
 
-      vTmpRow = this.newNode(vTmpTBody, 'tr');
+      vTmpRow = this.newNode(vTmpTBody, 'tr', null, this.rotatedMode ? 'fillerHeader' : '');
       this.newNode(vTmpRow, 'td', null, 'gtasklist', '\u00A0');
       this.newNode(vTmpRow, 'td', null, 'gtaskname', '\u00A0');
       if (this.vShowRes == 1) this.newNode(vTmpRow, 'td', null, 'gtaskheading gresource', this.vLangs[this.vLang]['resource']);
@@ -549,10 +557,13 @@ export const GanttChart = function (pDiv, pFormat) {
       }
 
       // DRAW the date format selector at bottom left.
-      vTmpRow = this.newNode(vTmpTBody, 'tr');
-      this.newNode(vTmpRow, 'td', null, 'gtasklist', '\u00A0');
-      vTmpCell = this.newNode(vTmpRow, 'td', null, 'gspanning gtaskname');
-      vTmpCell.appendChild(this.drawSelector('bottom'));
+      //TODO LEANCRM-1369
+      if (!this.rotatedMode) {
+        vTmpRow = this.newNode(vTmpTBody, 'tr');
+        this.newNode(vTmpRow, 'td', null, 'gtasklist', '\u00A0');
+        vTmpCell = this.newNode(vTmpRow, 'td', null, 'gspanning gtaskname');
+        vTmpCell.appendChild(this.drawSelector('bottom'));
+      }
       if (this.vShowRes == 1) this.newNode(vTmpRow, 'td', null, 'gspanning gresource', '\u00A0');
       if (this.vShowDur == 1) this.newNode(vTmpRow, 'td', null, 'gspanning gduration', '\u00A0');
       if (this.vShowComp == 1) this.newNode(vTmpRow, 'td', null, 'gspanning gpccomplete', '\u00A0');
@@ -787,7 +798,7 @@ export const GanttChart = function (pDiv, pFormat) {
           addThisRowListeners(this, this.vTaskList[i].getListChildRow(), vTmpRow);
           vTmpCell = this.newNode(vTmpRow, 'td', null, 'gtaskcell');
           vTmpDiv = this.newNode(vTmpCell, 'div', null, 'gtaskcelldiv', '\u00A0\u00A0');
-          vTmpDiv = this.newNode(vTmpDiv, 'div', this.vDivId + 'bardiv_' + vID, 'gtaskbarcontainer', null, 12, vTaskLeftPx + vTaskRightPx - 6);
+          vTmpDiv = this.newNode(vTmpDiv, 'div', this.vDivId + 'bardiv_' + vID, 'gtaskbarcontainer ' + this.vTaskList[i].getLink(), null, 12, vTaskLeftPx + vTaskRightPx - 6);
 
           this.vTaskList[i].setBarDiv(vTmpDiv);
           vTmpDiv2 = this.newNode(vTmpDiv, 'div', this.vDivId + 'taskbar_' + vID, this.vTaskList[i].getClass(), null, 12);
@@ -827,7 +838,7 @@ export const GanttChart = function (pDiv, pFormat) {
             vTmpDiv = this.newNode(vTmpCell, 'div', null, 'gtaskcelldiv', '\u00A0\u00A0');
             this.vTaskList[i].setCellDiv(vTmpDiv);
             if (this.vTaskList[i].getGroup() == 1) {
-              vTmpDiv = this.newNode(vTmpDiv, 'div', this.vDivId + 'bardiv_' + vID, 'gtaskbarcontainer', null, vTaskWidth, vTaskLeftPx);
+              vTmpDiv = this.newNode(vTmpDiv, 'div', this.vDivId + 'bardiv_' + vID, 'gtaskbarcontainer ' + this.vTaskList[i].getLink(), null, vTaskWidth, vTaskLeftPx);
               this.vTaskList[i].setBarDiv(vTmpDiv);
               vTmpDiv2 = this.newNode(vTmpDiv, 'div', this.vDivId + 'taskbar_' + vID, this.vTaskList[i].getClass(), null, vTaskWidth);
               this.vTaskList[i].setTaskDiv(vTmpDiv2);
@@ -870,14 +881,14 @@ export const GanttChart = function (pDiv, pFormat) {
             }
 
             // draw the lines for dependecies
-            vTmpDiv = this.newNode(vTmpDiv, 'div', this.vDivId + 'bardiv_' + vID, 'gtaskbarcontainer', null, vTaskWidth, vTaskLeftPx);
+            vTmpDiv = this.newNode(vTmpDiv, 'div', this.vDivId + 'bardiv_' + vID, 'gtaskbarcontainer ' + this.vTaskList[i].getLink(), null, vTaskWidth, vTaskLeftPx);
             this.vTaskList[i].setBarDiv(vTmpDiv);
             vTmpDiv2 = this.newNode(vTmpDiv, 'div', this.vDivId + 'taskbar_' + vID, this.vTaskList[i].getClass(), null, vTaskWidth);
             this.vTaskList[i].setTaskDiv(vTmpDiv2);
 
             // PLANNED
             if (vTaskPlanLeftPx && vTaskPlanLeftPx != vTaskLeftPx) { // vTaskPlanRightPx vTaskPlanLeftPx
-              const vTmpPlanDiv = this.newNode(vTmpDivCell, 'div', this.vDivId + 'bardiv_' + vID, 'gtaskbarcontainer gplan', null, vTaskPlanRightPx, vTaskPlanLeftPx);
+              const vTmpPlanDiv = this.newNode(vTmpDivCell, 'div', this.vDivId + 'bardiv_' + vID, 'gtaskbarcontainer ' + this.vTaskList[i].getLink() + ' gplan', null, vTaskPlanRightPx, vTaskPlanLeftPx);
               const vTmpDiv3 = this.newNode(vTmpPlanDiv, 'div', this.vDivId + 'taskbar_' + vID, this.vTaskList[i].getClass() + ' gplan', null, vTaskPlanRightPx);
             }
 
@@ -927,7 +938,16 @@ export const GanttChart = function (pDiv, pFormat) {
 
       // MAIN VIEW: Appending all generated components to main view
       while (this.vDiv.hasChildNodes()) this.vDiv.removeChild(this.vDiv.firstChild);
-      vTmpDiv = this.newNode(this.vDiv, 'div', null, 'gchartcontainer');
+
+      //TODO LEANCRM-1369
+      if (this.rotatedMode) {
+        vTmpRow = this.newNode(this.vDiv, 'tr');
+        this.newNode(vTmpRow, 'td', null, 'gtasklist', '\u00A0');
+        vTmpCell = this.newNode(vTmpRow, 'td', null, 'gspanning gtaskname');
+        vTmpCell.appendChild(this.drawSelector('top'));
+      }
+
+      vTmpDiv = this.newNode(this.vDiv, 'div', null, this.rotatedMode ? 'gchartcontainer-rotated' : 'gchartcontainer');
 
       let leftvTmpDiv = this.newNode(vTmpDiv, 'div', null, 'gmain gmainleft');
       leftvTmpDiv.appendChild(vLeftHeader);

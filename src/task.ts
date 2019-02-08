@@ -163,7 +163,8 @@ export const TaskItemObject = function (object) {
 }
 
 export const TaskItem = function (pID, pName, pStart, pEnd, pClass, pLink, pMile, pRes, pComp, pGroup, pParent, pOpen,
-  pDepend, pCaption, pNotes, pGantt, pCost = null, pPlanStart = null, pPlanEnd = null, pDataObject = null) {
+  pDepend, pCaption, pNotes, pGantt, pCost = null, pPlanStart = null, pPlanEnd = null, pDataObject = null,
+  pBorderColor = null, pBackgroundColor = null) {
   let vGantt = pGantt ? pGantt : this;
   let _id = document.createTextNode(pID).data;
   let vID = hashKey(document.createTextNode(pID).data);
@@ -211,6 +212,8 @@ export const TaskItem = function (pID, pName, pStart, pEnd, pClass, pLink, pMile
   let vListChildRow = null;
   let vChildRow = null;
   let vGroupSpan = null;
+  let vBorderColor = null;
+  let vBackgroundColor = null;
 
   vNotes = document.createElement('span');
   vNotes.className = 'gTaskNotes';
@@ -272,6 +275,10 @@ export const TaskItem = function (pID, pName, pStart, pEnd, pClass, pLink, pMile
     }
   }
 
+  vBorderColor = document.createTextNode(pBorderColor).data;
+  vBackgroundColor = document.createTextNode(pBackgroundColor).data;
+  vBorderColor = vBorderColor != null ? vBorderColor.concat(' ') : '';
+  vBackgroundColor = vBackgroundColor != null ? vBackgroundColor.concat(' ') : '';
 
 
   this.getID = function () { return vID; };
@@ -293,7 +300,7 @@ export const TaskItem = function (pID, pName, pStart, pEnd, pClass, pLink, pMile
   this.getCost = function () { return vCost; };
   this.getGroupMinStart = function () { return vGroupMinStart; };
   this.getGroupMinEnd = function () { return vGroupMinEnd; };
-  this.getClass = function () { return vClass; };
+  this.getClass = function () { return vBorderColor.concat(vBackgroundColor).concat(vClass); };
   this.getLink = function () { return vLink; };
   this.getMile = function () { return vMile; };
   this.getDepend = function () {
@@ -356,6 +363,8 @@ export const TaskItem = function (pID, pName, pStart, pEnd, pClass, pLink, pMile
   this.getChildRow = function () { return vChildRow; };
   this.getListChildRow = function () { return vListChildRow; };
   this.getGroupSpan = function () { return vGroupSpan; };
+  this.getBorderColor = function () { return vBorderColor; };
+  this.getBackgroundColor = function () { return vBackgroundColor; };
   this.setName = function (pName) { vName = pName; };
   this.setCost = function (pCost) { vCost = pCost; };
   this.setResource = function (pRes) { vRes = pRes; };
