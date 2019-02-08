@@ -369,6 +369,7 @@ export const GanttChart = function (pDiv, pFormat, pRotatedMode) {
       let vTmpDiv = this.newNode(vLeftHeader, 'div', this.vDivId + 'glisthead', 'glistlbl gcontainercol');
       let vTmpTab = this.newNode(vTmpDiv, 'table', null, 'gtasktableh');
       let vTmpTBody = this.newNode(vTmpTab, 'tbody');
+      let vTmpRow;
       let vTmpCell;
       //TODO LEANCRM-1369
       if (!this.rotatedMode) {

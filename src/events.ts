@@ -215,7 +215,7 @@ const highlightDependencies = function (e) {
 
   let scenarioName;
 
-  for (i = 0; i < classes.length; i++) {
+  for (let i = 0; i < classes.length; i++) {
     let c = classes[i];
 
     if (c.indexOf('scenario') >= 0) {
@@ -228,7 +228,7 @@ const highlightDependencies = function (e) {
 
     let tasks = document.querySelectorAll('.'.concat(scenarioName));
     for (let i = 0; i < tasks.length; i++) {
-      let taskDiv = tasks[i];
+      let taskDiv = tasks[i] as HTMLElement;
       taskDiv.style.opacity = '1.0';
     }
   }
@@ -238,7 +238,7 @@ const setAllTasksOpacity = function (e, opacityLvl) {
   //TODO LEANCRM-1369
   let tasks = document.querySelectorAll('.gtaskbarcontainer');
   for (let i = 0; i < tasks.length; i++) {
-    let taskDiv = tasks[i];
+    let taskDiv = tasks[i] as HTMLElement;
     taskDiv.style.opacity = opacityLvl;
   }
 }
