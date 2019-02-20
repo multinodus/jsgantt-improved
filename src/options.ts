@@ -4,7 +4,7 @@ export const includeGetSet = function () {
 
 
   /**
-   * SETTERS 
+   * SETTERS
    */
   this.setOptions = function (options) {
     const keys = Object.keys(options);
@@ -98,7 +98,7 @@ export const includeGetSet = function () {
   this.setLang = function (pLang) { if (this.vLangs[pLang]) this.vLang = pLang; };
   this.setChartBody = function (pDiv) { if (typeof HTMLDivElement !== 'function' || pDiv instanceof HTMLDivElement) this.vChartBody = pDiv; };
   this.setChartHead = function (pDiv) { if (typeof HTMLDivElement !== 'function' || pDiv instanceof HTMLDivElement) this.vChartHead = pDiv; };
-  this.setListBody = function (pDiv) { if (typeof HTMLDivElement !== 'function' || pDiv instanceof HTMLDivElement) this.vListBody = pDiv; };
+  this.setListBody = function (pDiv) { this.vListBody = pDiv; };
   this.setChartTable = function (pTable) { if (typeof HTMLTableElement !== 'function' || pTable instanceof HTMLTableElement) this.vChartTable = pTable; };
   this.setLines = function (pDiv) { if (typeof HTMLDivElement !== 'function' || pDiv instanceof HTMLDivElement) this.vLines = pDiv; };
   this.setTimer = function (pVal) { this.vTimer = pVal * 1; };
@@ -180,4 +180,26 @@ export const includeGetSet = function () {
   this.getEventClickRow = function () { return this.vEventClickRow; };
   this.getResources = function () { return this.vResources; };
   this.getAdditionalHeaders = function () { return this.vAdditionalHeaders; };
+  this.getDebug = function () { return this.vDebug; };
+
+
+  this.setBufferShowRes = function (pVal) { this.bufferShowRes = pVal; };
+  this.setBufferShowDur = function (pVal) { this.bufferShowDur = pVal; };
+  this.setBufferShowComp = function (pVal) { this.bufferShowComp = pVal; };
+  this.setBufferShowStartDate = function (pVal) { this.bufferShowStartDate = pVal; };
+  this.setBufferShowEndDate = function (pVal) { this.bufferShowEndDate = pVal; };
+  this.setBufferShowPlanStartDate = function (pVal) { this.bufferShowPlanStartDate = pVal; };
+  this.setBufferShowPlanEndDate = function (pVal) { this.bufferShowPlanEndDate = pVal; };
+  this.setBufferShowCost = function (pVal) { this.bufferShowCost = pVal; };
+  this.setTableVisible = function (pVal) { this.isTableVisible = pVal; };
+
+  this.getBufferShowRes = function () { return this.bufferShowRes; };
+  this.getBufferShowDur = function () { return this.bufferShowDur; };
+  this.getBufferShowComp = function () { return this.bufferShowComp; };
+  this.getBufferShowStartDate = function () { return this.bufferShowStartDate; };
+  this.getBufferShowEndDate = function () { return this.bufferShowEndDate; };
+  this.getBufferShowPlanStartDate = function () { return this.bufferShowPlanStartDate; };
+  this.getBufferShowPlanEndDate = function () { return this.bufferShowPlanEndDate; };
+  this.getBufferShowCost = function () { return this.bufferShowCost; };
+  this.getTableVisible = function () { return this.isTableVisible; };
 }

@@ -1,7 +1,7 @@
 import * as lang from './lang';
 import {
   mouseOver, mouseOut, addThisRowListeners, addTooltipListeners, addScrollListeners, addFormatListeners, moveToolTip,
-  addFolderListeners, addListenerClickCell, addListener, addListenerInputCell, addListenerDependencies
+  addFolderListeners, addListenerClickCell, addListener, addListenerInputCell, addListenerDependencies, addShowHideTableListeners
 } from "./events";
 import {
   parseDateFormatStr, formatDateStr, getOffset, parseDateStr, getZoomFactor,
@@ -35,6 +35,18 @@ export const GanttChart = function (pDiv, pFormat, pRotatedMode) {
   this.vShowPlanStartDate = this.rotatedMode ? 0 : 0;
   this.vShowPlanEndDate = this.rotatedMode ? 0 : 0;
   this.vShowCost = this.rotatedMode ? 0 : 0;
+
+  this.bufferShowRes = this.rotatedMode ? 0 : 1;
+  this.bufferShowDur = this.rotatedMode ? 0 : 1;
+  this.bufferShowComp = this.rotatedMode ? 0 : 1;
+  this.bufferShowStartDate = this.rotatedMode ? 0 : 1;
+  this.bufferShowEndDate = this.rotatedMode ? 0 : 1;
+  this.bufferShowPlanStartDate = this.rotatedMode ? 0 : 0;
+  this.bufferShowPlanEndDate = this.rotatedMode ? 0 : 0;
+  this.bufferShowCost = this.rotatedMode ? 0 : 0;
+
+  this.isTableVisible = true;
+
   this.vShowPlanEndDate = 0;
   this.vShowEndWeekDate = 1;
   this.vShowTaskInfoRes = 1;
@@ -80,6 +92,8 @@ export const GanttChart = function (pDiv, pFormat, pRotatedMode) {
   this.vResources = null;
   this.vAdditionalHeaders = {};
   this.vEditable = false;
+  //TODO LEANCRM-1369 bookmark
+  this.vEditableInfluentToDatesOnly = true;
   this.vDebug = false;
   this.vShowSelector = new Array('top');
   this.vDateInputFormat = 'yyyy-mm-dd';
@@ -109,11 +123,11 @@ export const GanttChart = function (pDiv, pFormat, pRotatedMode) {
   this.vWeekColWidth = 36;
   this.vMonthColWidth = 36;
   this.vQuarterColWidth = 18;
-  //TODO LEANCRM-1369
-  this.vRowHeight = this.rotatedMode ? 44 : 20;
+  //TODO LEANCRM-1369 bookmark
+  this.vRowHeight = this.rotatedMode ? 44 : 40;
   this.vTodayPx = -1;
   this.vLangs = lang;
-  //TODO LEANCRM-1369
+  //TODO LEANCRM-1369 bookmark
   this.vLang = navigator.language && navigator.language in lang ? navigator.language : 'ru';
   this.vChartBody = null;
   this.vChartHead = null;
@@ -121,7 +135,7 @@ export const GanttChart = function (pDiv, pFormat, pRotatedMode) {
   this.vChartTable = null;
   this.vLines = null;
   this.vTimer = 20;
-  //TODO LEANCRM-1369
+  //TODO LEANCRM-1369 bookmark
   this.vTooltipDelay = 500;
   this.includeGetSet = includeGetSet.bind(this);
   this.includeGetSet();
@@ -303,6 +317,11 @@ export const GanttChart = function (pDiv, pFormat, pRotatedMode) {
     }
     if (pId) vNewNode.id = pId; // I wish I could do this with setAttribute but older IEs don't play nice
     if (pClass) vNewNode.className = pClass;
+    //TODO LEANCRM-1369 bookmark
+    if (Number(pWidth) && pWidth < 3) {
+      pWidth = 3;
+    }
+
     if (pWidth) vNewNode.style.width = (isNaN(pWidth * 1)) ? pWidth : pWidth + 'px';
     if (pLeft) vNewNode.style.left = (isNaN(pLeft * 1)) ? pLeft : pLeft + 'px';
     if (pText) {
@@ -360,20 +379,20 @@ export const GanttChart = function (pDiv, pFormat, pRotatedMode) {
 
 
       /**
-       * LIST HEAD 
-       * 
-       * 
-       * 
+       * LIST HEAD
+       *
+       *
+       *
        * HEADINGS
       */
       let vTmpDiv = this.newNode(vLeftHeader, 'div', this.vDivId + 'glisthead', 'glistlbl gcontainercol');
       let vTmpTab = this.newNode(vTmpDiv, 'table', null, 'gtasktableh');
-      let vTmpTBody = this.newNode(vTmpTab, 'tbody');
+
       let vTmpRow;
       let vTmpCell;
-      //TODO LEANCRM-1369
+      //TODO LEANCRM-1369 bookmark
       if (!this.rotatedMode) {
-        vTmpRow = this.newNode(vTmpTBody, 'tr');
+        vTmpRow = this.newNode(vTmpTab, 'tr');
         this.newNode(vTmpRow, 'td', null, 'gtasklist', '\u00A0');
         vTmpCell = this.newNode(vTmpRow, 'td', null, 'gspanning gtaskname');
         vTmpCell.appendChild(this.drawSelector('top'));
@@ -394,9 +413,15 @@ export const GanttChart = function (pDiv, pFormat, pRotatedMode) {
         }
       }
 
-      vTmpRow = this.newNode(vTmpTBody, 'tr', null, this.rotatedMode ? 'fillerHeader' : '');
+      vTmpRow = this.newNode(vTmpTab, 'tr', null, this.rotatedMode ? 'fillerHeader' : '');
       this.newNode(vTmpRow, 'td', null, 'gtasklist', '\u00A0');
-      this.newNode(vTmpRow, 'td', null, 'gtaskname', '\u00A0');
+      let filler = this.newNode(vTmpRow, 'td', null, 'gtaskname', '\u00A0');
+      //TODO LEANCRM-1369 bookmark
+      if (!this.rotatedMode) {
+        addShowHideTableListeners(this, this.newNode(filler, 'span', null, 'gformlabel gshowhidetable', this.isTableVisible ? 'Скрыть': 'Показать'));
+      }
+
+
       if (this.vShowRes == 1) this.newNode(vTmpRow, 'td', null, 'gtaskheading gresource', this.vLangs[this.vLang]['resource']);
       if (this.vShowDur == 1) this.newNode(vTmpRow, 'td', null, 'gtaskheading gduration', this.vLangs[this.vLang]['duration']);
       if (this.vShowComp == 1) this.newNode(vTmpRow, 'td', null, 'gtaskheading gpccomplete', this.vLangs[this.vLang]['comp']);
@@ -414,11 +439,15 @@ export const GanttChart = function (pDiv, pFormat, pRotatedMode) {
         }
       }
 
+      let vTmpTBody = this.newNode(vTmpTab, 'tbody');
+
+      //TODO LEANCRM-1369 bookmark
+      this.setListBody(vTmpTBody);
 
       /**
-       * LIST BODY 
-       * 
-       * 
+       * LIST BODY
+       *
+       *
       */
       let vTmpDiv2;
 
@@ -457,7 +486,7 @@ export const GanttChart = function (pDiv, pFormat, pRotatedMode) {
             addFolderListeners(this, vTmpSpan, vID);
 
             vTmpDiv.appendChild(document.createTextNode('\u00A0' + this.vTaskList[i].getName()));
-            // const text = makeInput(this.vTaskList[i].getName(), this.vEditable, 'text');
+            // const text = makeInput(this.vTaskList[i].getName(), !this.vEditableInfluentToDatesOnly && this.vEditable, 'text');
             // vTmpDiv.appendChild(document.createNode(text));
             const callback = (task, e) => task.setName(e.target.value);
             addListenerInputCell(vTmpCell, this.vEventsChange, callback, this.vTaskList[i], 'taskname', this.Draw.bind(this));
@@ -465,7 +494,7 @@ export const GanttChart = function (pDiv, pFormat, pRotatedMode) {
           }
           else {
             vCellContents += '\u00A0\u00A0\u00A0\u00A0';
-            const text = makeInput(this.vTaskList[i].getName(), this.vEditable, 'text');
+            const text = makeInput(this.vTaskList[i].getName(), !this.vEditableInfluentToDatesOnly && this.vEditable, 'text');
             vTmpDiv = this.newNode(vTmpCell, 'div', null, null, vCellContents + text);
             const callback = (task, e) => task.setName(e.target.value);
             addListenerInputCell(vTmpCell, this.vEventsChange, callback, this.vTaskList[i], 'taskname', this.Draw.bind(this));
@@ -474,7 +503,7 @@ export const GanttChart = function (pDiv, pFormat, pRotatedMode) {
 
           if (this.vShowRes == 1) {
             vTmpCell = this.newNode(vTmpRow, 'td', null, 'gresource');
-            const text = makeInput(this.vTaskList[i].getResource(), this.vEditable, 'resource', this.vTaskList[i].getResource(), this.vResources);
+            const text = makeInput(this.vTaskList[i].getResource(), !this.vEditableInfluentToDatesOnly && this.vEditable, 'resource', this.vTaskList[i].getResource(), this.vResources);
             vTmpDiv = this.newNode(vTmpCell, 'div', null, null, text);
             const callback = (task, e) => task.setResource(e.target.value);
             addListenerInputCell(vTmpCell, this.vEventsChange, callback, this.vTaskList[i], 'res', this.Draw.bind(this), 'change');
@@ -482,7 +511,7 @@ export const GanttChart = function (pDiv, pFormat, pRotatedMode) {
           }
           if (this.vShowDur == 1) {
             vTmpCell = this.newNode(vTmpRow, 'td', null, 'gduration');
-            const text = makeInput(this.vTaskList[i].getDuration(this.vFormat, this.vLangs[this.vLang]), this.vEditable, 'text', this.vTaskList[i].getDuration());
+            const text = makeInput(this.vTaskList[i].getDuration(this.vFormat, this.vLangs[this.vLang]), !this.vEditableInfluentToDatesOnly && this.vEditable, 'text', this.vTaskList[i].getDuration());
             vTmpDiv = this.newNode(vTmpCell, 'div', null, null, text);
             const callback = (task, e) => task.setDur(e.target.value);
             addListenerInputCell(vTmpCell, this.vEventsChange, callback, this.vTaskList[i], 'dur', this.Draw.bind(this));
@@ -490,7 +519,7 @@ export const GanttChart = function (pDiv, pFormat, pRotatedMode) {
           }
           if (this.vShowComp == 1) {
             vTmpCell = this.newNode(vTmpRow, 'td', null, 'gpccomplete');
-            const text = makeInput(this.vTaskList[i].getCompStr(), this.vEditable, 'percentage', this.vTaskList[i].getCompVal());
+            const text = makeInput(this.vTaskList[i].getCompStr(), !this.vEditableInfluentToDatesOnly && this.vEditable, 'percentage', this.vTaskList[i].getCompVal());
             vTmpDiv = this.newNode(vTmpCell, 'div', null, null, text);
             const callback = (task, e) => task.setCompVal(e.target.value);
             addListenerInputCell(vTmpCell, this.vEventsChange, callback, this.vTaskList[i], 'comp', this.Draw.bind(this));
@@ -499,7 +528,7 @@ export const GanttChart = function (pDiv, pFormat, pRotatedMode) {
           if (this.vShowStartDate == 1) {
             vTmpCell = this.newNode(vTmpRow, 'td', null, 'gstartdate');
             const v = formatDateStr(this.vTaskList[i].getStart(), this.vDateTaskTableDisplayFormat, this.vLangs[this.vLang]);
-            const text = makeInput(v, this.vEditable, 'date', this.vTaskList[i].getStart());
+            const text = makeInput(v, !this.vEditableInfluentToDatesOnly && this.vEditable, 'date', this.vTaskList[i].getStart());
             vTmpDiv = this.newNode(vTmpCell, 'div', null, null, text);
             const callback = (task, e) => task.setStart(e.target.value);
             addListenerInputCell(vTmpCell, this.vEventsChange, callback, this.vTaskList[i], 'start', this.Draw.bind(this));
@@ -508,7 +537,7 @@ export const GanttChart = function (pDiv, pFormat, pRotatedMode) {
           if (this.vShowEndDate == 1) {
             vTmpCell = this.newNode(vTmpRow, 'td', null, 'genddate');
             const v = formatDateStr(this.vTaskList[i].getEnd(), this.vDateTaskTableDisplayFormat, this.vLangs[this.vLang]);
-            const text = makeInput(v, this.vEditable, 'date', this.vTaskList[i].getEnd());
+            const text = makeInput(v, !this.vEditableInfluentToDatesOnly && this.vEditable, 'date', this.vTaskList[i].getEnd());
             vTmpDiv = this.newNode(vTmpCell, 'div', null, null, text);
             const callback = (task, e) => task.setEnd(e.target.value);
             addListenerInputCell(vTmpCell, this.vEventsChange, callback, this.vTaskList[i], 'end', this.Draw.bind(this));
@@ -517,7 +546,7 @@ export const GanttChart = function (pDiv, pFormat, pRotatedMode) {
           if (this.vShowPlanStartDate == 1) {
             vTmpCell = this.newNode(vTmpRow, 'td', null, 'gplanstartdate');
             const v = this.vTaskList[i].getPlanStart() ? formatDateStr(this.vTaskList[i].getPlanStart(), this.vDateTaskTableDisplayFormat, this.vLangs[this.vLang]) : '';
-            const text = makeInput(v, this.vEditable, 'date', this.vTaskList[i].getPlanStart());
+            const text = makeInput(v, this.vEditable, 'datetime-local', this.vTaskList[i].getPlanStart());
             vTmpDiv = this.newNode(vTmpCell, 'div', null, null, text);
             const callback = (task, e) => task.setPlanStart(e.target.value);
             addListenerInputCell(vTmpCell, this.vEventsChange, callback, this.vTaskList[i], 'planstart', this.Draw.bind(this));
@@ -526,7 +555,7 @@ export const GanttChart = function (pDiv, pFormat, pRotatedMode) {
           if (this.vShowPlanEndDate == 1) {
             vTmpCell = this.newNode(vTmpRow, 'td', null, 'gplanenddate');
             const v = this.vTaskList[i].getPlanEnd() ? formatDateStr(this.vTaskList[i].getPlanEnd(), this.vDateTaskTableDisplayFormat, this.vLangs[this.vLang]) : '';
-            const text = makeInput(v, this.vEditable, 'date', this.vTaskList[i].getPlanEnd());
+            const text = makeInput(v, this.vEditable, 'datetime-local', this.vTaskList[i].getPlanEnd());
             vTmpDiv = this.newNode(vTmpCell, 'div', null, null, text);
             const callback = (task, e) => task.setPlanEnd(e.target.value);
             addListenerInputCell(vTmpCell, this.vEventsChange, callback, this.vTaskList[i], 'planend', this.Draw.bind(this));
@@ -534,7 +563,7 @@ export const GanttChart = function (pDiv, pFormat, pRotatedMode) {
           }
           if (this.vShowCost == 1) {
             vTmpCell = this.newNode(vTmpRow, 'td', null, 'gcost');
-            const text = makeInput(this.vTaskList[i].getCost(), this.vEditable, 'cost');
+            const text = makeInput(this.vTaskList[i].getCost(), !this.vEditableInfluentToDatesOnly && this.vEditable, 'cost');
             vTmpDiv = this.newNode(vTmpCell, 'div', null, null, text);
             const callback = (task, e) => task.setCost(e.target.value);
             addListenerInputCell(vTmpCell, this.vEventsChange, callback, this.vTaskList[i], 'cost', this.Draw.bind(this));
@@ -558,7 +587,7 @@ export const GanttChart = function (pDiv, pFormat, pRotatedMode) {
       }
 
       // DRAW the date format selector at bottom left.
-      //TODO LEANCRM-1369
+      //TODO LEANCRM-1369 bookmark
       if (!this.rotatedMode) {
         vTmpRow = this.newNode(vTmpTBody, 'tr');
         this.newNode(vTmpRow, 'td', null, 'gtasklist', '\u00A0');
@@ -592,12 +621,13 @@ export const GanttChart = function (pDiv, pFormat, pRotatedMode) {
 
       /**
        * CHART HEAD
-       * 
-       * 
+       *
+       *
        * HEADINGS
        */
       let vRightHeader = document.createDocumentFragment();
       vTmpDiv = this.newNode(vRightHeader, 'div', this.vDivId + 'gcharthead', 'gchartlbl gcontainercol');
+      //TODO LEANCRM-1369 bookmark
       this.setChartHead(vTmpDiv);
       vTmpTab = this.newNode(vTmpDiv, 'table', this.vDivId + 'chartTableh', 'gcharttableh');
       vTmpTBody = this.newNode(vTmpTab, 'tbody');
@@ -743,9 +773,9 @@ export const GanttChart = function (pDiv, pFormat, pRotatedMode) {
 
       /**
        * CHART GRID
-       * 
-       * 
-       * 
+       *
+       *
+       *
        */
       let vRightTable = document.createDocumentFragment();
       vTmpDiv = this.newNode(vRightTable, 'div', this.vDivId + 'gchartbody', 'gchartgrid gcontainercol');
@@ -799,10 +829,10 @@ export const GanttChart = function (pDiv, pFormat, pRotatedMode) {
           addThisRowListeners(this, this.vTaskList[i].getListChildRow(), vTmpRow);
           vTmpCell = this.newNode(vTmpRow, 'td', null, 'gtaskcell');
           vTmpDiv = this.newNode(vTmpCell, 'div', null, 'gtaskcelldiv', '\u00A0\u00A0');
-          vTmpDiv = this.newNode(vTmpDiv, 'div', this.vDivId + 'bardiv_' + vID, 'gtaskbarcontainer ' + this.vTaskList[i].getLink(), null, 12, vTaskLeftPx + vTaskRightPx - 6);
+          vTmpDiv = this.newNode(vTmpDiv, 'div', this.vDivId + 'bardiv_' + vID, 'gtaskbarcontainer ' + this.vTaskList[i].getParentGroup(), null, 12, vTaskLeftPx + vTaskRightPx - 6);
 
           this.vTaskList[i].setBarDiv(vTmpDiv);
-          vTmpDiv2 = this.newNode(vTmpDiv, 'div', this.vDivId + 'taskbar_' + vID, this.vTaskList[i].getClass(), null, 12);
+          vTmpDiv2 = this.newNode(vTmpDiv, 'div', this.vDivId + 'taskbar_' + vID, this.vTaskList[i].getClassesWithBorderAndBackground(), null, 12);
           this.vTaskList[i].setTaskDiv(vTmpDiv2);
 
           if (this.vTaskList[i].getCompVal() < 100)
@@ -839,12 +869,12 @@ export const GanttChart = function (pDiv, pFormat, pRotatedMode) {
             vTmpDiv = this.newNode(vTmpCell, 'div', null, 'gtaskcelldiv', '\u00A0\u00A0');
             this.vTaskList[i].setCellDiv(vTmpDiv);
             if (this.vTaskList[i].getGroup() == 1) {
-              vTmpDiv = this.newNode(vTmpDiv, 'div', this.vDivId + 'bardiv_' + vID, 'gtaskbarcontainer ' + this.vTaskList[i].getLink(), null, vTaskWidth, vTaskLeftPx);
+              vTmpDiv = this.newNode(vTmpDiv, 'div', this.vDivId + 'bardiv_' + vID, 'gtaskbarcontainer ' + this.vTaskList[i].getParentGroup(), null, vTaskWidth, vTaskLeftPx);
               this.vTaskList[i].setBarDiv(vTmpDiv);
-              vTmpDiv2 = this.newNode(vTmpDiv, 'div', this.vDivId + 'taskbar_' + vID, this.vTaskList[i].getClass(), null, vTaskWidth);
+              vTmpDiv2 = this.newNode(vTmpDiv, 'div', this.vDivId + 'taskbar_' + vID, this.vTaskList[i].getClassesWithBorder(), null, vTaskWidth);
               this.vTaskList[i].setTaskDiv(vTmpDiv2);
 
-              this.newNode(vTmpDiv2, 'div', this.vDivId + 'complete_' + vID, this.vTaskList[i].getClass() + 'complete', null, this.vTaskList[i].getCompStr());
+              this.newNode(vTmpDiv2, 'div', this.vDivId + 'complete_' + vID, this.vTaskList[i].getClassesWithBackground() + 'complete', null, this.vTaskList[i].getCompStr());
 
               this.newNode(vTmpDiv, 'div', null, this.vTaskList[i].getClass() + 'endpointleft');
               if (vTaskWidth >= this.vMinGpLen * 2) this.newNode(vTmpDiv, 'div', null, this.vTaskList[i].getClass() + 'endpointright');
@@ -882,19 +912,19 @@ export const GanttChart = function (pDiv, pFormat, pRotatedMode) {
             }
 
             // draw the lines for dependecies
-            vTmpDiv = this.newNode(vTmpDiv, 'div', this.vDivId + 'bardiv_' + vID, 'gtaskbarcontainer ' + this.vTaskList[i].getLink(), null, vTaskWidth, vTaskLeftPx);
+            vTmpDiv = this.newNode(vTmpDiv, 'div', this.vDivId + 'bardiv_' + vID, 'gtaskbarcontainer ' + this.vTaskList[i].getParentGroup(), null, vTaskWidth, vTaskLeftPx);
             this.vTaskList[i].setBarDiv(vTmpDiv);
-            vTmpDiv2 = this.newNode(vTmpDiv, 'div', this.vDivId + 'taskbar_' + vID, this.vTaskList[i].getClass(), null, vTaskWidth);
+            vTmpDiv2 = this.newNode(vTmpDiv, 'div', this.vDivId + 'taskbar_' + vID, this.vTaskList[i].getClassesWithBorderAndBackground(), null, vTaskWidth);
             this.vTaskList[i].setTaskDiv(vTmpDiv2);
 
             // PLANNED
             if (vTaskPlanLeftPx && vTaskPlanLeftPx != vTaskLeftPx) { // vTaskPlanRightPx vTaskPlanLeftPx
-              const vTmpPlanDiv = this.newNode(vTmpDivCell, 'div', this.vDivId + 'bardiv_' + vID, 'gtaskbarcontainer ' + this.vTaskList[i].getLink() + ' gplan', null, vTaskPlanRightPx, vTaskPlanLeftPx);
-              const vTmpDiv3 = this.newNode(vTmpPlanDiv, 'div', this.vDivId + 'taskbar_' + vID, this.vTaskList[i].getClass() + ' gplan', null, vTaskPlanRightPx);
+              const vTmpPlanDiv = this.newNode(vTmpDivCell, 'div', this.vDivId + 'bardiv_' + vID, 'gtaskbarcontainer ' + this.vTaskList[i].getParentGroup() + ' gplan', null, vTaskPlanRightPx, vTaskPlanLeftPx);
+              const vTmpDiv3 = this.newNode(vTmpPlanDiv, 'div', this.vDivId + 'taskbar_' + vID, this.vTaskList[i].getClassesWithBorderAndBackground() + ' gplan', null, vTaskPlanRightPx);
             }
 
             // and opaque completion div
-            this.newNode(vTmpDiv2, 'div', this.vDivId + 'complete_' + vID, this.vTaskList[i].getClass() + 'complete', null, this.vTaskList[i].getCompStr());
+            this.newNode(vTmpDiv2, 'div', this.vDivId + 'complete_' + vID, this.vTaskList[i].getClassesWithBorderAndBackground() + 'complete', null, this.vTaskList[i].getCompStr());
 
             // caption
             if (vComb) vTmpItem = this.vTaskList[i].getParItem();
@@ -940,7 +970,7 @@ export const GanttChart = function (pDiv, pFormat, pRotatedMode) {
       // MAIN VIEW: Appending all generated components to main view
       while (this.vDiv.hasChildNodes()) this.vDiv.removeChild(this.vDiv.firstChild);
 
-      //TODO LEANCRM-1369
+      //TODO LEANCRM-1369 bookmark
       if (this.rotatedMode) {
         vTmpRow = this.newNode(this.vDiv, 'tr');
         this.newNode(vTmpRow, 'td', null, 'gtasklist', '\u00A0');
@@ -1066,6 +1096,11 @@ const makeInput = function (formattedValue, editable, type = 'text', value = nul
       case 'date':
         value = value ? value.toISOString().split('T')[0] : ''
         return `<input class="gantt-inputtable" type="date" value="${value}">`;
+      case 'datetime-local':
+        let tzoffset = value.getTimezoneOffset() * 60000; //offset in milliseconds
+        let localTime = new Date(value.getTime()  - tzoffset);
+        value = value ? String(localTime.toISOString()).replace('Z', '') : ''
+        return `<input class="gantt-inputtable" type="datetime-local" style="font-size: 12px;" value="${value}">`;
       case 'resource':
         if (choices) {
           const found = choices.find(c => c.id == value || c.name == value);

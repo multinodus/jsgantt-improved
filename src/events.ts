@@ -1,4 +1,4 @@
-import { delayedHide, changeFormat, stripIds, isIE, findObj, fadeToolTip } from "./utils";
+import { delayedHide, changeFormat, showHideTable, stripIds, isIE, findObj, fadeToolTip } from './utils';
 import { folder } from "./task";
 import { updateFlyingObj } from "./draw";
 
@@ -41,8 +41,12 @@ export const showToolTip = function (pGanttChartObj, e, pContents, pWidth, pTime
       pGanttChartObj.vTool.style.visibility = 'hidden';
       pGanttChartObj.vTool.style.left = Math.floor(((e) ? e.clientX : (<MouseEvent>window.event).clientX) / 2) + 'px';
       pGanttChartObj.vTool.style.top = Math.floor(((e) ? e.clientY : (<MouseEvent>window.event).clientY) / 2) + 'px';
-      this.addListener('mouseover', function () { clearTimeout(pGanttChartObj.vTool.delayTimeout); }, pGanttChartObj.vTool);
-      this.addListener('mouseout', function () { delayedHide(pGanttChartObj, pGanttChartObj.vTool, pTimer); }, pGanttChartObj.vTool);
+
+      //TODO LEANCRM-1369 bookmark
+      if (this) {
+        this.addListener('mouseover', function () { clearTimeout(pGanttChartObj.vTool.delayTimeout); }, pGanttChartObj.vTool);
+        this.addListener('mouseout', function () { delayedHide(pGanttChartObj, pGanttChartObj.vTool, pTimer); }, pGanttChartObj.vTool);
+      }
     }
     clearTimeout(pGanttChartObj.vTool.delayTimeout);
     if (pGanttChartObj.vTool.vToolCont.getAttribute('showing') != vShowing || pGanttChartObj.vTool.style.visibility != 'visible') {
@@ -139,11 +143,44 @@ export const addFormatListeners = function (pGanttChart, pFormat, pObj) {
   addListener('click', function () { changeFormat(pFormat, pGanttChart); }, pObj);
 };
 
-export const addScrollListeners = function (pGanttChart) {
-  addListener('resize', function () { pGanttChart.getChartHead().scrollLeft = pGanttChart.getChartBody().scrollLeft; }, window);
+//TODO LEANCRM-1369 bookmark
+export const addShowHideTableListeners = function (pGanttChart, pObj) {
+  addListener('click', function () { showHideTable(pGanttChart); }, pObj);
+};
 
-  //TODO LEANCRM-1369
-  //  addListener('resize', function () { pGanttChart.getListBody().scrollTop = pGanttChart.getChartBody().scrollTop; }, window);
+// Flag to tell if the change was programmatic or by the user
+let ignoreNextScrollEvent = false;
+
+export const addScrollListeners = function (pGanttChart) {
+  //TODO LEANCRM-1369 bookmark
+  // addListener('resize', function () { pGanttChart.getChartHead().scrollLeft = pGanttChart.getChartBody().scrollLeft; }, window);
+
+  // addListener('resize', function () { pGanttChart.getListBody().scrollTop = pGanttChart.getChartBody().scrollTop; }, window);
+
+  if (pGanttChart.getChartBody()) {
+    pGanttChart.getChartBody().addEventListener('scroll',
+    function () {
+      if (!ignoreNextScrollEvent && pGanttChart.getChartBody().scrollTop !== pGanttChart.getListBody().scrollTop) {
+        pGanttChart.getListBody().scrollTop = pGanttChart.getChartBody().scrollTop;
+        ignoreNextScrollEvent = true;
+      } else {
+        ignoreNextScrollEvent = false;
+      }
+      pGanttChart.getChartHead().scrollLeft = pGanttChart.getChartBody().scrollLeft;
+    }, window);
+  }
+
+  if (pGanttChart.getListBody()) {
+    pGanttChart.getListBody().addEventListener('scroll',
+    function () {
+      if (!ignoreNextScrollEvent && pGanttChart.getChartBody().scrollTop !== pGanttChart.getListBody().scrollTop) {
+        pGanttChart.getChartBody().scrollTop = pGanttChart.getListBody().scrollTop;
+        ignoreNextScrollEvent = true;
+      } else {
+        ignoreNextScrollEvent = false;
+      }
+    }, window);
+  }
 };
 
 export const addListenerClickCell = function (vTmpCell, vEvents, task, column) {
@@ -185,7 +222,7 @@ export const addListenerDependencies = function () {
     taskDiv.addEventListener('mouseout', e => {
       toggleDependencies(e);
     });
-    //TODO LEANCRM-1369
+    //TODO LEANCRM-1369 bookmark
     taskDiv.addEventListener('click', function(e) {
       highlightDependencies(e);
     });
@@ -200,14 +237,17 @@ const toggleDependencies = function (e) {
     style = '';
   }
   if (ids.length > 1) {
-    //TODO LEANCRM-1369
-    // document.querySelectorAll(`.gDepId${ids[1]}`).forEach((c: any) => {
-    // c.style.borderStyle = style;
-    // });
+    //TODO LEANCRM-1369 bookmark
+    let arrows = document.querySelectorAll(`.gDepId${ids[1]}`);
+
+    for (let i = 0; i < arrows.length; i++) {
+      let arrow = arrows[i] as HTMLElement;
+      arrow.style.borderStyle = style;
+    };
   }
 }
 
-//TODO LEANCRM-1369
+//TODO LEANCRM-1369 bookmark
 const highlightDependencies = function (e) {
   let target = e.currentTarget;
 
@@ -224,22 +264,40 @@ const highlightDependencies = function (e) {
   }
 
   if (scenarioName) {
-    setAllTasksOpacity(e, '0.2');
-
     let tasks = document.querySelectorAll('.'.concat(scenarioName));
+
+    let alreadyHighlighted = true;
+
     for (let i = 0; i < tasks.length; i++) {
       let taskDiv = tasks[i] as HTMLElement;
-      taskDiv.style.opacity = '1.0';
+      if (taskDiv.className.indexOf('gplan') < 0) {
+        alreadyHighlighted = alreadyHighlighted && (taskDiv.style.opacity === '1');
+      }
+    }
+
+    if (alreadyHighlighted) {
+      setAllTasksOpacity(e, 'unset');
+    } else {
+      setAllTasksOpacity(e, '0.2');
+
+      for (let i = 0; i < tasks.length; i++) {
+        let taskDiv = tasks[i] as HTMLElement;
+        if (taskDiv.className.indexOf('gplan') < 0) {
+          taskDiv.style.opacity = '1.0';
+        }
+      }
     }
   }
 }
 
 const setAllTasksOpacity = function (e, opacityLvl) {
-  //TODO LEANCRM-1369
   let tasks = document.querySelectorAll('.gtaskbarcontainer');
   for (let i = 0; i < tasks.length; i++) {
     let taskDiv = tasks[i] as HTMLElement;
-    taskDiv.style.opacity = opacityLvl;
+
+    if (taskDiv.className.indexOf('gplan') < 0) {
+      taskDiv.style.opacity = opacityLvl;
+    }
   }
 }
 

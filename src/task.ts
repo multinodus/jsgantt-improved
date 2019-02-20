@@ -30,13 +30,15 @@ export const folder = function (pID, ganttObj) {
       }
     }
   }
+  //TODO LEANCRM-1369 bookmark
   let bd;
-  if (this.vDebug) {
+  let debug = ganttObj.getDebug();
+  if (debug) {
     bd = new Date();
     console.log('after drawDependency', bd);
   }
-  ganttObj.DrawDependencies(this.vDebug);
-  if (this.vDebug) {
+  ganttObj.DrawDependencies(debug);
+  if (debug) {
     const ad = new Date();
     console.log('after drawDependency', ad, (ad.getTime() - bd.getTime()));
   }
@@ -100,7 +102,7 @@ export const taskLink = function (pRef, pWidth, pHeight) {
   if (pWidth) vWidth = pWidth; else vWidth = 400;
   if (pHeight) vHeight = pHeight; else vHeight = 400;
 
-  window.open(pRef, 'newwin', 'height=' + vHeight + ',width=' + vWidth); // let OpenWindow = 
+  window.open(pRef, 'newwin', 'height=' + vHeight + ',width=' + vWidth); // let OpenWindow =
 };
 
 
@@ -158,7 +160,9 @@ export const TaskItemObject = function (object) {
     object.pCost,
     object.pPlanStart,
     object.pPlanEnd,
-    object
+    object,
+    object.pBorderColor,
+    object.pBackgroundColor
   );
 }
 
@@ -300,7 +304,19 @@ export const TaskItem = function (pID, pName, pStart, pEnd, pClass, pLink, pMile
   this.getCost = function () { return vCost; };
   this.getGroupMinStart = function () { return vGroupMinStart; };
   this.getGroupMinEnd = function () { return vGroupMinEnd; };
-  this.getClass = function () { return vBorderColor.concat(vBackgroundColor).concat(vClass); };
+  //TODO LEANCRM-1369 bookmark
+  this.getClass = function () {
+    return vClass;
+  };
+  this.getClassesWithBorderAndBackground = function () {
+    return vBorderColor.concat(vBackgroundColor).concat(vClass);
+  };
+  this.getClassesWithBorder = function () {
+    return vBorderColor.concat(vClass);
+  };
+  this.getClassesWithBackground = function () {
+    return vBackgroundColor.concat(vClass);
+  };
   this.getLink = function () { return vLink; };
   this.getMile = function () { return vMile; };
   this.getDepend = function () {
@@ -344,6 +360,9 @@ export const TaskItem = function (pID, pName, pStart, pEnd, pClass, pLink, pMile
     }
     return vDuration;
   };
+
+  //TODO LEANCRM-1369 bookmark
+  this.getParentGroup = function () { return 'scenario' + String(vParent && vParent != '0' ? vParent: Number(vID)); };
 
   this.getParent = function () { return vParent; };
   this.getGroup = function () { return vGroup; };
@@ -437,6 +456,17 @@ export const createTaskInfo = function (pTask) {
     this.newNode(vTmpDiv, 'span', null, 'gTaskLabel', this.vLangs[this.vLang]['enddate'] + ': ');
     this.newNode(vTmpDiv, 'span', null, 'gTaskText', formatDateStr(pTask.getEnd(), this.vDateTaskDisplayFormat, this.vLangs[this.vLang]));
   }
+  //TODO LEANCRM-1369 bookmark
+  if (this.vShowPlanStartDate == 1) {
+    vTmpDiv = this.newNode(vTaskInfo, 'div', null, 'gTILine gTIsd');
+    this.newNode(vTmpDiv, 'span', null, 'gTaskLabel', this.vLangs[this.vLang]['planstartdate'] + ': ');
+    this.newNode(vTmpDiv, 'span', null, 'gTaskText', formatDateStr(pTask.getPlanStart(), this.vDateTaskDisplayFormat, this.vLangs[this.vLang]));
+  }
+  if (this.vShowPlanEndDate == 1) {
+    vTmpDiv = this.newNode(vTaskInfo, 'div', null, 'gTILine gTIed');
+    this.newNode(vTmpDiv, 'span', null, 'gTaskLabel', this.vLangs[this.vLang]['planenddate'] + ': ');
+    this.newNode(vTmpDiv, 'span', null, 'gTaskText', formatDateStr(pTask.getPlanEnd(), this.vDateTaskDisplayFormat, this.vLangs[this.vLang]));
+  }
   if (this.vShowTaskInfoDur == 1 && !pTask.getMile()) {
     vTmpDiv = this.newNode(vTaskInfo, 'div', null, 'gTILine gTId');
     this.newNode(vTmpDiv, 'span', null, 'gTaskLabel', this.vLangs[this.vLang]['duration'] + ': ');
@@ -452,11 +482,13 @@ export const createTaskInfo = function (pTask) {
     this.newNode(vTmpDiv, 'span', null, 'gTaskLabel', this.vLangs[this.vLang]['resource'] + ': ');
     this.newNode(vTmpDiv, 'span', null, 'gTaskText', pTask.getResource());
   }
+  //TODO LEANCRM-1369 bookmark
   if (this.vShowTaskInfoLink == 1 && pTask.getLink() != '') {
     vTmpDiv = this.newNode(vTaskInfo, 'div', null, 'gTILine gTIl');
     let vTmpNode = this.newNode(vTmpDiv, 'span', null, 'gTaskLabel');
     vTmpNode = this.newNode(vTmpNode, 'a', null, 'gTaskText', this.vLangs[this.vLang]['moreinfo']);
     vTmpNode.setAttribute('href', pTask.getLink());
+    vTmpNode.setAttribute('target', '_blank');
   }
   if (this.vShowTaskInfoNotes == 1) {
     vTmpDiv = this.newNode(vTaskInfo, 'div', null, 'gTILine gTIn');

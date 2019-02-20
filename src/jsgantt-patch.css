@@ -1,0 +1,390 @@
+ng-gantt {
+
+    td, th {
+      display: table-cell;
+      vertical-align: inherit !important;
+    }
+  
+    tr {
+      display: table-row;
+      vertical-align: inherit !important;
+      border-color: inherit !important;
+    }
+  
+    table {
+      display: table;
+      // border-collapse: separate;
+      border-spacing: 2px !important;
+      border-color: grey !important;
+    }
+  
+    tbody {
+      display: table-row-group;
+      vertical-align: middle !important;
+      border-color: inherit !important;
+    }
+  
+    // @import "~jsgantt-improved/dist/jsgantt";
+    @import "./gantt-original";
+  
+    // .gchartcontainer {
+    //   height: 100%;
+    //   overflow-y: scroll;
+    // }
+  
+    .gDepFS,
+    .gDepSS,
+    .gDepSF,
+    .gDepFF
+    {
+      border-color: #000000;
+    }
+  
+    .gDepFSArw,
+    .gDepSSArw {
+      border-left: 4px solid #000000;
+    }
+  
+    .gDepFFArw,
+    .gDepSFArw {
+      border-right: 4px solid #000000;
+    }
+  
+    .gantt-inputtable {
+      max-height: 25px;
+    }
+  
+    .gshowhidetable {
+      font-size: 14px;
+      font-weight: bold;
+      left: 60px;
+    }
+  
+    .gchartcontainer {
+      height: 100%;
+      width: 100%;
+    }
+  
+    .gchartlbl {
+      height: 44px;
+      overflow: hidden !important;
+    }
+  
+    .gchartgrid {
+      height: calc(100% - 44px);
+      overflow-x: scroll !important;
+      overflow-y: scroll !important;
+    }
+  
+    .gmainleft {
+      overflow-y: hidden;
+      width: 750px !important;
+    }
+  
+    .gmainright {
+      width: calc(100% - 750px) !important;
+      overflow-x: hidden;
+    }
+  
+    .ggroupblackcomplete {
+      height: 100%;
+      margin-top: 0px;
+      margin-bottom: 0px;
+    }
+  
+    .gtaskname {
+      min-width: 200px;
+      max-width: 200px;
+      width: 200px;
+      font-size: 12px !important;
+  
+      div {
+        font-size: 12px !important;
+      }
+    }
+  
+    .gresource,
+    .gpccomplete {
+      width: 90px;
+      max-width: 90px;
+      font-size: 12px;
+  
+      div {
+        font-size: 12px !important;
+      }
+    }
+  
+    .gmajorheading {
+      font-size: 12px;
+    }
+  
+    .glistlbl {
+      height: 100%;
+    }
+  
+    .gtasktableh {
+      height: 100%;
+  
+      tbody {
+        overflow-y: scroll;
+        overflow-x: scroll;
+        height: calc(100% - 80px);
+        display: block;
+      }
+  
+      tbody::-webkit-scrollbar {
+        display: none;
+      }
+    }
+  
+    .gchartcontainer .ggroupblack,
+    .gchartcontainer .gtaskblue,
+    .gchartcontainer .gtaskred,
+    .gchartcontainer .gtaskgreen,
+    .gchartcontainer .gtaskyellow,
+    .gchartcontainer .gtaskpurple,
+    .gchartcontainer .gtaskpink {
+      height: 25px;
+      margin-top: 1px;
+    }
+  
+    .gchartcontainer .gtaskbluecomplete,
+    .gchartcontainer .gtaskredcomplete,
+    .gchartcontainer .gtaskgreencomplete,
+    .gchartcontainer .gtaskyellowcomplete,
+    .gchartcontainer .gtaskpurplecomplete,
+    .gchartcontainer .gtaskpinkcomplete {
+      height: 15px;
+      margin-top: 7px;
+    }
+  
+    .gtaskcelldiv {
+      height: 25px;
+    }
+  
+   .gtasktableh>tr {
+      display: block;
+    }
+  
+    .gmajorheading,
+    .gminorheading,
+    .gminorheadingwkend,
+    .gtaskcell,
+    .gtaskcellwkend {
+      height: 44px;
+    }
+  
+    // .gtaskheading,
+    // .gmajorheading,
+    // .gminorheading {
+    //   font-size: 12px;
+    // }
+  
+    .gtasklist {
+      height: 44px;
+    }
+  
+    .gstartdate div,
+    .gplanstartdate,
+    .gplanenddate,
+    .gstartdate,
+    .genddate {
+      width: 180px;
+      max-width: 180px;
+      font-size: 12px;
+  
+      * {
+        font-size: 12px;
+      }
+    }
+  
+    .gchartcontainer-rotated .ggroupblack,
+    .gchartcontainer-rotated .gtaskblue,
+    .gchartcontainer-rotated .gtaskred,
+    .gchartcontainer-rotated .gtaskgreen,
+    .gchartcontainer-rotated .gtaskyellow,
+    .gchartcontainer-rotated .gtaskpurple,
+    .gchartcontainer-rotated .gtaskpink {
+      height: 30px;
+      margin-top: 1px;
+    }
+  
+    .gchartcontainer-rotated .ggroupblackcomplete {
+      height: 20px;
+      margin-top: 5px;
+      margin-bottom: 5px;
+    }
+  
+    .gchartcontainer-rotated .gtaskbluecomplete,
+    .gchartcontainer-rotated .gtaskredcomplete,
+    .gchartcontainer-rotated .gtaskgreencomplete,
+    .gchartcontainer-rotated .gtaskyellowcomplete,
+    .gchartcontainer-rotated .gtaskpurplecomplete,
+    .gchartcontainer-rotated .gtaskpinkcomplete {
+      height: 20px;
+      margin-top: 5px;
+    }
+  
+    .gchartcontainer-rotated {
+      /* padding-left: 532px; LC width */
+      line-height: 1;
+      /* Overrides inherited CSS (e.g. from Bootstrap) */
+  
+      transform: rotate(-90deg);
+      height: 100%;
+      width: 100%;
+      // overflow-x: scroll;
+      // overflow-y: scroll;
+      /* direction: rtl; */
+    }
+  
+    .gchartcontainer-rotated .gcontainercol {
+      position: relative;
+    }
+  
+    /* .gmain-wrapper {
+      direction: ltr;
+      width: auto;
+      height: auto;
+    } */
+  
+    .gchartcontainer-rotated .gmain{
+      display: inline-block;
+      height: 100%;
+    }
+  
+    .gchartcontainer-rotated .gmainright {
+      width: calc(100% - 170px) !important;
+      top: 0;
+      overflow-x: unset;
+      overflow-y: unset;
+    }
+  
+    .gchartcontainer-rotated .gmainleft {
+      width: 170px !important;
+      overflow-x: unset;
+      overflow-y: unset;
+    }
+  
+    .gchartcontainer-rotated .gtasktableh tr.gname,
+    .gchartcontainer-rotated .gcharttable tr,
+    .gchartcontainer-rotated .gtasktable tr {
+      height: 44px !important;
+    }
+  
+    .gchartcontainer-rotated .gtasktableh tr.fillerHeader {
+      height: 44px !important;
+    }
+  
+    .task-border-red {
+      outline: 2px solid rgb(196, 58, 58);
+    }
+  
+    .task-border-green {
+      outline: 2px solid rgb(80, 193, 58);
+    }
+  
+    .task-background-red {
+      background-color: rgb(196, 58, 58);
+    }
+  
+    .task-background-green {
+      background-color: rgb(80, 193, 58);
+    }
+  
+    .task-background-blue {
+      background-color: rgb(58, 132, 195);
+    }
+  
+    .gtaskbarcontainer.gplan {
+      background: rgb(58, 132, 195);
+      border: none;
+  
+      div {
+        border-top: 25px solid;
+        border-color: rgb(58, 132, 195);
+        outline: none;
+      }
+    }
+  
+  }
+  
+  ng-gantt {
+    height: 100%;
+    width: 100%
+  }
+  
+  ng-gantt>div {
+    height: 100%;
+    width: 100%
+    // overflow-y: scroll;
+  }
+  
+  .JSGanttToolTip {
+    position: absolute;
+    display: block;
+    z-index: 2;
+  }
+  
+  .JSGanttToolTipcont {
+    font-family: tahoma, arial, verdana;
+    font-size: 10px;
+    display: block;
+    background: #ffffff;
+    color: #656565
+  }
+  
+  .gTaskInfo {
+    background: #dbecff;
+    width: 400px;
+    border: #656565 1px solid;
+    border-radius: 10px;
+    padding: 4px 6px 4px 6px;
+    float: left;
+  }
+  
+  .gTtTitle {
+    display: block;
+    font-size: 14px;
+    font-weight: bold;
+    color: #404040;
+    margin-left: 4px;
+    margin-bottom: 1em;
+  }
+  
+  .gTaskLabel {
+    font-size: 12px;
+    font-weight: bold;
+    color: #656565;
+    margin-left: 4px;
+  }
+  
+  .gTaskText {
+    position: absolute;
+    left: 90px;
+    padding-top: 1px;
+    font-size: 12px;
+    font-weight: normal;
+    color: #656565;
+    margin-left: 20px;
+  }
+  
+  .gTaskNotes {
+    font-size: 11px;
+    font-weight: normal;
+    color: #323232;
+    padding: 0 15px;
+    display: block;
+  }
+  
+  .gTIn {
+    padding-top: 10px;
+  }
+  
+  .gTIl {
+    * {
+      font-size: 11px;
+      color: #0000FF;
+    }
+  }
+  

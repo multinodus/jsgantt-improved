@@ -105,6 +105,62 @@ export const changeFormat = function (pFormat, ganttObj) {
   else alert('Chart undefined');
 };
 
+//TODO LEANCRM-1369 bookmark
+export const showHideTable = function (ganttObj) {
+  if (ganttObj) {
+    if (ganttObj.getTableVisible()) {
+      ganttObj.setBufferShowRes(ganttObj.getShowRes());
+      ganttObj.setBufferShowDur(ganttObj.getShowDur());
+      ganttObj.setBufferShowComp(ganttObj.getShowComp());
+      ganttObj.setBufferShowStartDate(ganttObj.getShowStartDate());
+      ganttObj.setBufferShowEndDate(ganttObj.getShowEndDate());
+      ganttObj.setBufferShowPlanStartDate(ganttObj.getShowPlanStartDate());
+      ganttObj.setBufferShowPlanEndDate(ganttObj.getShowPlanEndDate());
+      ganttObj.setBufferShowCost(ganttObj.getShowCost());
+
+      ganttObj.setShowRes(0);
+      ganttObj.setShowDur(0);
+      ganttObj.setShowComp(0);
+      ganttObj.setShowStartDate(0);
+      ganttObj.setShowEndDate(0);
+      ganttObj.setShowPlanStartDate(0);
+      ganttObj.setShowPlanEndDate(0);
+      ganttObj.setShowCost(0);
+
+      ganttObj.setTableVisible(false);
+
+      ganttObj.Draw();
+
+      let left = document.querySelector('.gmainleft') as HTMLElement;
+      let right = document.querySelector('.gmainright') as HTMLElement;
+
+      left.setAttribute('style', 'width:210px !important');
+      right.setAttribute('style', 'width:calc(100% - 210px) !important');
+    } else {
+      ganttObj.setShowRes(ganttObj.getBufferShowRes());
+      ganttObj.setShowDur(ganttObj.getBufferShowDur());
+      ganttObj.setShowComp(ganttObj.getBufferShowComp());
+      ganttObj.setShowStartDate(ganttObj.getBufferShowStartDate());
+      ganttObj.setShowEndDate(ganttObj.getBufferShowEndDate());
+      ganttObj.setShowPlanStartDate(ganttObj.getBufferShowPlanStartDate());
+      ganttObj.setShowPlanEndDate(ganttObj.getBufferShowPlanEndDate());
+      ganttObj.setShowCost(ganttObj.getBufferShowCost());
+
+      ganttObj.setTableVisible(true);
+
+      ganttObj.Draw();
+
+      let left = document.querySelector('.gmainleft') as HTMLElement;
+      let right = document.querySelector('.gmainright') as HTMLElement;
+
+      left.removeAttribute('style');
+      right.removeAttribute('style');
+    }
+  } else {
+    alert('Chart undefined');
+  };
+};
+
 export const parseDateStr = function (pDateStr, pFormatStr) {
   let vDate = new Date();
   let vDateParts = pDateStr.split(/[^0-9]/);
@@ -437,9 +493,9 @@ export const hashString = function (key) {
   return hash >>> 0;
 }
 
-//TODO LEANCRM-1369
+//TODO LEANCRM-1369 bookmark
 export const hashKey = function (key) {
-  return hashString(key) % 10000;
+  return hashString(key);
 }
 
 export const criticalPath = function (tasks) {
